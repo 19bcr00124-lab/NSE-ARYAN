@@ -1,0 +1,24 @@
+name: Track NSE Sectoral Indices
+
+on:
+  schedule:
+    - cron: '*/30 4-9 * * 1-5'
+    - cron: '0 10 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: pip install requests
+      - run: python nse_index_tracker.py --sectoral --log sectoral_log.csv
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add sectoral_log.csv
+          git commit -m "Update sectoral index log" || echo "No changes to commit"
+          git push

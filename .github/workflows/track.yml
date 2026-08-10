@@ -2,8 +2,10 @@ name: Track NSE Sectoral Indices
 
 on:
   schedule:
-    - cron: '*/15 9-10 * * 1-5'
-    - cron: '0 11 * * 1-5'
+    # 9:00, 9:15, ... 11:00 AM IST, Mon-Fri (times are in UTC; IST = UTC+5:30)
+    - cron: '30,45 3 * * 1-5'
+    - cron: '*/15 4 * * 1-5'
+    - cron: '0,15,30 5 * * 1-5'
   workflow_dispatch:
 
 jobs:
@@ -15,7 +17,24 @@ jobs:
         with:
           python-version: '3.x'
       - run: pip install requests
+
+      - name: Reset log if it's a new day
+        run: |
+          python3 - <<'EOF'
+          import os
+          from datetime import date
+          path = "sectoral_log.csv"
+          today = date.today().isoformat()
+          if os.path.exists(path):
+              with open(path) as f:
+                  lines = f.readlines()
+              if len(lines) > 1 and not lines[-1].startswith(today):
+                  with open(path, "w") as f:
+                      f.write(lines[0])  # keep header only
+          EOF
+
       - run: python nse_index_tracker.py --sectoral --log sectoral_log.csv
+
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

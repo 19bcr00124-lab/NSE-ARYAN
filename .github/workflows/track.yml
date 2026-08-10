@@ -2,8 +2,8 @@ name: Track NSE Sectoral Indices
 
 on:
   schedule:
-    - cron: '*/15 4-9 * * 1-5'
-    - cron: '0 10 * * 1-5'
+    - cron: '*/15 9-10 * * 1-5'
+    - cron: '0 11 * * 1-5'
   workflow_dispatch:
 
 jobs:
